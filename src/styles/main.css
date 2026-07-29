@@ -439,9 +439,70 @@ textarea { resize: vertical; min-height: 160px; line-height: 1.5; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Floating Download Bar ───────────────────────────────────────── */
+/* ── Floating Download Bar (Expandable FAB) ──────────────────────── */
 .floating-download-bar {
-  position: absolute; bottom: 24px; right: 32px; z-index: 30;
+  position: absolute;
+  bottom: 24px;
+  right: 28px;
+  z-index: 30;
+}
+
+#btnDownloadFloating.fab-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  height: 54px;
+  width: 54px;
+  min-width: 54px;
+  max-width: 54px;
+  padding: 0;
+  border-radius: 27px;
+  background: linear-gradient(135deg, var(--accent-andreani), #b91c1c);
+  color: white;
+  border: none;
+  box-shadow: 0 8px 24px rgba(227, 24, 55, 0.45);
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              gap 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s ease,
+              transform 0.2s ease;
+}
+
+#btnDownloadFloating.fab-download i,
+#btnDownloadFloating.fab-download svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  display: block;
+}
+
+#btnDownloadFloating.fab-download .btn-text {
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: opacity 0.25s ease, max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+#btnDownloadFloating.fab-download:hover {
+  width: auto;
+  max-width: 320px;
+  padding: 0 22px;
+  gap: 10px;
+  box-shadow: 0 12px 32px rgba(227, 24, 55, 0.65);
+  transform: translateY(-2px);
+}
+
+#btnDownloadFloating.fab-download:hover .btn-text {
+  opacity: 1;
+  max-width: 260px;
 }
 
 /* ── Toast Notifications ─────────────────────────────────────────── */
