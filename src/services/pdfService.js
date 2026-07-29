@@ -28,23 +28,24 @@ export async function generatePdf(state) {
 
   const textColor = rgb(0.08, 0.08, 0.12);
 
-  // ── COORDENADAS (template 612×936 pt, imagen JPEG 1275×1950 px) ──────────────
-  //   Sección 1 (bloque superior): campo Nombre ≈ height - 80
-  //   Sección 2 (bloque remitente, mitad de página): campo Nombre ≈ height - 313
-  //   Cada fila: -28 pt (Nombre → Domicilio), -27 pt (Domicilio → CPA)
+  // ── COORDENADAS (medidas sobre debug-coordenadas.pdf a 100% zoom) ────────────
+  //   height = 936 pt   |   escala imagen: 1pt = 0.48px (1275x1950px @ 150dpi)
+  //   Sección 1 Nombre  ≈ height - 81
+  //   Sección 2 Nombre  ≈ height - 296
+  //   Gaps: Nombre→Domicilio = -28pt | Domicilio→CPA = -26pt
   // ─────────────────────────────────────────────────────────────────────
 
-  // Bloque 1: Remitente Superior
-  _drawParty(firstPage, remitente,    70 + offX, height - 80 + offY, fsHead, font, fontBold, textColor);
+  // Sección 1 — Remitente (izquierda)
+  _drawParty(firstPage, remitente,    70 + offX, height - 81 + offY, fsHead, font, fontBold, textColor);
 
-  // Bloque 2: Destinatario Superior
-  _drawParty(firstPage, destinatario, 335 + offX, height - 80 + offY, fsHead, font, fontBold, textColor);
+  // Sección 1 — Destinatario (derecha)
+  _drawParty(firstPage, destinatario, 335 + offX, height - 81 + offY, fsHead, font, fontBold, textColor);
 
-  // Bloque 3: Remitente Medio
-  _drawParty(firstPage, remitente,    70 + offX, height - 313 + offY, fsHead, font, fontBold, textColor);
+  // Sección 2 — Remitente (izquierda)
+  _drawParty(firstPage, remitente,    70 + offX, height - 296 + offY, fsHead, font, fontBold, textColor);
 
-  // Bloque 4: Destinatario Medio
-  _drawParty(firstPage, destinatario, 335 + offX, height - 313 + offY, fsHead, font, fontBold, textColor);
+  // Sección 2 — Destinatario (derecha)
+  _drawParty(firstPage, destinatario, 335 + offX, height - 296 + offY, fsHead, font, fontBold, textColor);
 
   // ── Bloque 5: Cuerpo de la Carta ──────────────────────────────────────────
   let bodyY = height - 425 + offY;
@@ -84,13 +85,16 @@ export async function generatePdf(state) {
 
 function _drawParty(page, party, x, startY, fontSize, font, fontBold, color) {
   let y = startY;
+  // Nombre
   page.drawText(party.nombre || '', { x, y, size: fontSize, font: fontBold, color });
-  y -= 28;
+  y -= 28; // Nombre → Domicilio: 28pt
+  // Domicilio
   page.drawText(party.domicilio || '', { x, y, size: fontSize, font, color });
-  y -= 27;
-  page.drawText(party.cpa || '', { x, y, size: fontSize, font: fontBold, color });
-  page.drawText(party.localidad || '', { x: x + 70, y, size: fontSize, font, color });
-  page.drawText(party.provincia || '', { x: x + 210, y, size: fontSize, font, color });
+  y -= 26; // Domicilio → CPA: 26pt
+  // CPA | Localidad | Provincia
+  page.drawText(party.cpa      || '', { x,         y, size: fontSize, font: fontBold, color });
+  page.drawText(party.localidad|| '', { x: x + 70,  y, size: fontSize, font,         color });
+  page.drawText(party.provincia|| '', { x: x + 210, y, size: fontSize, font,         color });
 }
 
 function _drawWrappedText(page, text, x, startY, maxWidth, fontSize, font, lineHeight, color) {
