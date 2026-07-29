@@ -12,5 +12,6 @@ RUN npm run build
 
 # ── Stage 2: Serve con Nginx ──────────────────────────────────────────
 FROM public.ecr.aws/nginx/nginx:alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
