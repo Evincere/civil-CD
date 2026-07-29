@@ -3,14 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generador Carta Documento Andreani - Editor PDF</title>
+  <title>Carta Documento Digital — Generador Andreani</title>
   <meta name="description" content="Aplicación para el rellenado automático y superposición vectorial sobre plantilla oficial de Carta Documento Andreani en PDF.">
-  <link rel="stylesheet" href="./styles.css">
-  
-  <!-- PDF-Lib & Local PDF.js -->
-  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <script src="./pdf.min.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -73,29 +70,29 @@
             </div>
             
             <div class="form-group full">
-              <label for="remNombre">Nombre y Apellido o Razón Social</label>
-              <input type="text" id="remNombre" placeholder="Ej: Juan Carlos Pérez">
+              <label for="remNombre">Nombre y Apellido o Razón Social <span class="required">*</span></label>
+              <input type="text" id="remNombre" placeholder="Ej: Juan Carlos Pérez" autocomplete="name">
             </div>
 
             <div class="form-group full">
-              <label for="remDomicilio">Domicilio (Calle, N°, Piso, Dpto)</label>
-              <input type="text" id="remDomicilio" placeholder="Ej: Av. Corrientes 1234, 4° B">
+              <label for="remDomicilio">Domicilio (Calle, N°, Piso, Dpto) <span class="required">*</span></label>
+              <input type="text" id="remDomicilio" placeholder="Ej: Av. Corrientes 1234, 4° B" autocomplete="street-address">
             </div>
 
             <div class="form-grid-2">
               <div class="form-group">
-                <label for="remCPA">C.P.A.</label>
-                <input type="text" id="remCPA" placeholder="Ej: C1043AAV">
+                <label for="remCPA">C.P.A. <span class="required">*</span></label>
+                <input type="text" id="remCPA" placeholder="Ej: C1043AAV" maxlength="10">
               </div>
               <div class="form-group">
-                <label for="remLocalidad">Localidad</label>
-                <input type="text" id="remLocalidad" placeholder="Ej: CABA">
+                <label for="remLocalidad">Localidad <span class="required">*</span></label>
+                <input type="text" id="remLocalidad" placeholder="Auto-completa por CPA">
               </div>
             </div>
 
             <div class="form-group full">
               <label for="remProvincia">Provincia</label>
-              <input type="text" id="remProvincia" placeholder="Ej: Buenos Aires">
+              <input type="text" id="remProvincia" placeholder="Auto-completa por CPA">
             </div>
           </div>
 
@@ -106,29 +103,29 @@
             </div>
             
             <div class="form-group full">
-              <label for="destNombre">Nombre y Apellido o Razón Social</label>
-              <input type="text" id="destNombre" placeholder="Ej: Empresa Constructora S.A.">
+              <label for="destNombre">Nombre y Apellido o Razón Social <span class="required">*</span></label>
+              <input type="text" id="destNombre" placeholder="Ej: Empresa Constructora S.A." autocomplete="off">
             </div>
 
             <div class="form-group full">
-              <label for="destDomicilio">Domicilio (Calle, N°, Piso, Dpto)</label>
-              <input type="text" id="destDomicilio" placeholder="Ej: San Martín 567">
+              <label for="destDomicilio">Domicilio (Calle, N°, Piso, Dpto) <span class="required">*</span></label>
+              <input type="text" id="destDomicilio" placeholder="Ej: San Martín 567" autocomplete="off">
             </div>
 
             <div class="form-grid-2">
               <div class="form-group">
-                <label for="destCPA">C.P.A.</label>
-                <input type="text" id="destCPA" placeholder="Ej: B7600AAA">
+                <label for="destCPA">C.P.A. <span class="required">*</span></label>
+                <input type="text" id="destCPA" placeholder="Ej: B7600AAA" maxlength="10">
               </div>
               <div class="form-group">
-                <label for="destLocalidad">Localidad</label>
-                <input type="text" id="destLocalidad" placeholder="Ej: Mar del Plata">
+                <label for="destLocalidad">Localidad <span class="required">*</span></label>
+                <input type="text" id="destLocalidad" placeholder="Auto-completa por CPA">
               </div>
             </div>
 
             <div class="form-group full">
               <label for="destProvincia">Provincia</label>
-              <input type="text" id="destProvincia" placeholder="Ej: Buenos Aires">
+              <input type="text" id="destProvincia" placeholder="Auto-completa por CPA">
             </div>
           </div>
 
@@ -137,6 +134,22 @@
         <!-- Tab 2: Contenido de la Carta -->
         <div id="tab-contenido" class="tab-pane">
           
+          <!-- Número de Envío -->
+          <div class="form-card">
+            <div class="form-card-title envio">
+              <i data-lucide="hash"></i> Número de Envío / Referencia
+            </div>
+            <div class="form-group full">
+              <label for="nroEnvio">N° de Carta Documento</label>
+              <div class="input-with-action">
+                <input type="text" id="nroEnvio" placeholder="Ej: CD-20260728-4921">
+                <button id="btnGenerarNroEnvio" class="btn btn-secondary btn-sm" title="Generar número automáticamente">
+                  <i data-lucide="sparkles"></i> Generar
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div class="form-card">
             <div class="form-card-title cuerpo">
               <i data-lucide="align-left"></i> Redacción del Texto
@@ -181,7 +194,7 @@
             </div>
 
             <div class="form-group full">
-              <label for="cuerpoTexto">Texto Principal de la Carta
+              <label for="cuerpoTexto">Texto Principal de la Carta <span class="required">*</span>
                 <span id="charCounter" class="label-hint">0 caracteres</span>
               </label>
               <textarea id="cuerpoTexto" placeholder="Formule aquí el texto de su intimación o notificación formal..."></textarea>
@@ -284,7 +297,7 @@
         
         <div class="pdf-loading-overlay" id="loadingOverlay">
           <div class="spinner"></div>
-          <p style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">Cargando plantilla vectorial de Andreani...</p>
+          <p style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">Generando previsualización...</p>
         </div>
 
         <div class="pdf-canvas-wrapper" id="canvasWrapper">
@@ -307,8 +320,8 @@
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <!-- Application Logic -->
-  <script type="module" src="./app.js"></script>
+  <!-- Vite Entry Point -->
+  <script type="module" src="/src/main.js"></script>
 
 </body>
 </html>
