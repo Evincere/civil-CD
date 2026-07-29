@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador Carta Documento Andreani - Editor PDF</title>
+  <meta name="description" content="Aplicación para el rellenado automático y superposición vectorial sobre plantilla oficial de Carta Documento Andreani en PDF.">
+  <link rel="stylesheet" href="./styles.css">
+  
+  <!-- PDF-Lib & Local PDF.js -->
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="./pdf.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- App Header Navbar -->
+  <header class="app-header">
+    <div class="brand-container">
+      <div class="brand-icon">
+        <i data-lucide="file-text"></i>
+      </div>
+      <div class="brand-text">
+        <h1>Carta Documento Digital</h1>
+        <p>Procesamiento vectorial sobre plantilla oficial</p>
+      </div>
+      <span class="badge-official">
+        <span class="dot"></span> Plantilla Andreani
+      </span>
+    </div>
+
+    <div class="header-actions">
+      <button id="btnReset" class="btn btn-secondary btn-sm" title="Restablecer todos los campos">
+        <i data-lucide="rotate-ccw"></i> Limpiar
+      </button>
+      <button id="btnSaveDraft" class="btn btn-secondary btn-sm" title="Guardar borrador en el navegador">
+        <i data-lucide="save"></i> Guardar Borrador
+      </button>
+      <button id="btnDownloadHeader" class="btn btn-primary btn-sm">
+        <i data-lucide="download"></i> Descargar PDF
+      </button>
+    </div>
+  </header>
+
+  <!-- App Main Content Layout -->
+  <main class="app-main">
+    
+    <!-- Left Panel: Form & Controls -->
+    <aside class="sidebar-panel">
+      <!-- Tabs Navigation Header -->
+      <div class="tabs-header">
+        <button class="tab-btn active" data-tab="tab-partes">
+          <i data-lucide="users"></i> Partes
+        </button>
+        <button class="tab-btn" data-tab="tab-contenido">
+          <i data-lucide="file-edit"></i> Mensaje
+        </button>
+        <button class="tab-btn" data-tab="tab-calibracion">
+          <i data-lucide="sliders"></i> Calibración
+        </button>
+      </div>
+
+      <!-- Tab Content Area -->
+      <div class="tab-content">
+        
+        <!-- Tab 1: Remitente y Destinatario -->
+        <div id="tab-partes" class="tab-pane active">
+          
+          <!-- Remitente Card -->
+          <div class="form-card">
+            <div class="form-card-title remitente">
+              <i data-lucide="user-check"></i> Datos del Remitente
+            </div>
+            
+            <div class="form-group full">
+              <label for="remNombre">Nombre y Apellido o Razón Social</label>
+              <input type="text" id="remNombre" placeholder="Ej: Juan Carlos Pérez">
+            </div>
+
+            <div class="form-group full">
+              <label for="remDomicilio">Domicilio (Calle, N°, Piso, Dpto)</label>
+              <input type="text" id="remDomicilio" placeholder="Ej: Av. Corrientes 1234, 4° B">
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="remCPA">C.P.A.</label>
+                <input type="text" id="remCPA" placeholder="Ej: C1043AAV">
+              </div>
+              <div class="form-group">
+                <label for="remLocalidad">Localidad</label>
+                <input type="text" id="remLocalidad" placeholder="Ej: CABA">
+              </div>
+            </div>
+
+            <div class="form-group full">
+              <label for="remProvincia">Provincia</label>
+              <input type="text" id="remProvincia" placeholder="Ej: Buenos Aires">
+            </div>
+          </div>
+
+          <!-- Destinatario Card -->
+          <div class="form-card">
+            <div class="form-card-title destinatario">
+              <i data-lucide="send"></i> Datos del Destinatario
+            </div>
+            
+            <div class="form-group full">
+              <label for="destNombre">Nombre y Apellido o Razón Social</label>
+              <input type="text" id="destNombre" placeholder="Ej: Empresa Constructora S.A.">
+            </div>
+
+            <div class="form-group full">
+              <label for="destDomicilio">Domicilio (Calle, N°, Piso, Dpto)</label>
+              <input type="text" id="destDomicilio" placeholder="Ej: San Martín 567">
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="destCPA">C.P.A.</label>
+                <input type="text" id="destCPA" placeholder="Ej: B7600AAA">
+              </div>
+              <div class="form-group">
+                <label for="destLocalidad">Localidad</label>
+                <input type="text" id="destLocalidad" placeholder="Ej: Mar del Plata">
+              </div>
+            </div>
+
+            <div class="form-group full">
+              <label for="destProvincia">Provincia</label>
+              <input type="text" id="destProvincia" placeholder="Ej: Buenos Aires">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tab 2: Contenido de la Carta -->
+        <div id="tab-contenido" class="tab-pane">
+          
+          <div class="form-card">
+            <div class="form-card-title cuerpo">
+              <i data-lucide="align-left"></i> Redacción del Texto
+            </div>
+
+            <div class="form-group full">
+              <div class="preset-header">
+                <label>Plantillas Frecuentes
+                  <span class="label-hint">Seleccionar o crear texto modelo</span>
+                </label>
+                <div class="preset-header-actions">
+                  <button id="btnOpenSaveTemplate" class="btn btn-secondary btn-sm" title="Guardar el texto redactado como una nueva plantilla reutilizable">
+                    <i data-lucide="plus-circle"></i> Guardar Plantilla
+                  </button>
+                  <button id="btnResetPresets" class="btn btn-secondary btn-sm" title="Restablecer plantillas predeterminadas">
+                    <i data-lucide="rotate-ccw"></i> Restablecer
+                  </button>
+                </div>
+              </div>
+
+              <!-- Dynamic Preset Pills Container -->
+              <div id="presetContainer" class="preset-pills"></div>
+            </div>
+
+            <!-- Inline Save Template Form (Hidden by default) -->
+            <div id="saveTemplateCard" class="save-template-card" style="display: none;">
+              <div class="save-template-header">
+                <i data-lucide="bookmark-plus" style="color: var(--accent-primary);"></i>
+                <span>Guardar Nueva Plantilla</span>
+              </div>
+              <div class="form-group full" style="margin-top: 8px;">
+                <input type="text" id="newTemplateName" placeholder="Nombre de la plantilla (ej: Reclamo Honorarios)">
+              </div>
+              <div class="save-template-actions">
+                <button id="btnConfirmSaveTemplate" class="btn btn-primary btn-sm">
+                  <i data-lucide="check"></i> Guardar
+                </button>
+                <button id="btnCancelSaveTemplate" class="btn btn-secondary btn-sm">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group full">
+              <label for="cuerpoTexto">Texto Principal de la Carta
+                <span id="charCounter" class="label-hint">0 caracteres</span>
+              </label>
+              <textarea id="cuerpoTexto" placeholder="Formule aquí el texto de su intimación o notificación formal..."></textarea>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="fechaEmision">Lugar y Fecha</label>
+                <input type="text" id="fechaEmision" placeholder="Ej: Mendoza, 28 de Julio de 2026">
+              </div>
+              <div class="form-group">
+                <label for="firmante">Firmante / Aclaración</label>
+                <input type="text" id="firmante" placeholder="Ej: Juan Carlos Pérez - DNI 12.345.678">
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Tab 3: Calibración Fina -->
+        <div id="tab-calibracion" class="tab-pane">
+          
+          <div class="form-card">
+            <div class="form-card-title calibracion">
+              <i data-lucide="sliders"></i> Ajuste Fino de Coordenadas (mm / pt)
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">
+              Si su impresora desplaza levemente la impresión respecto a las casillas del formulario Andreani, ajuste estos valores:
+            </p>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="offsetX">Desplazamiento X global</label>
+                <input type="number" id="offsetX" value="0" step="1">
+              </div>
+              <div class="form-group">
+                <label for="offsetY">Desplazamiento Y global</label>
+                <input type="number" id="offsetY" value="0" step="1">
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="fontSizeEncabezado">Fuente Encabezados (pt)</label>
+                <input type="number" id="fontSizeEncabezado" value="9" min="6" max="14" step="0.5">
+              </div>
+              <div class="form-group">
+                <label for="fontSizeCuerpo">Fuente Cuerpo (pt)</label>
+                <input type="number" id="fontSizeCuerpo" value="9.5" min="6" max="16" step="0.5">
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="lineHeight">Interlineado Cuerpo (pt)</label>
+                <input type="number" id="lineHeight" value="13" min="8" max="24" step="0.5">
+              </div>
+              <div class="form-group">
+                <label for="maxLineWidth">Ancho Máx. Texto (pt)</label>
+                <input type="number" id="maxLineWidth" value="510" min="300" max="600" step="10">
+              </div>
+            </div>
+
+            <button id="btnRestoreCalib" class="btn btn-secondary btn-sm" style="margin-top: 8px;">
+              <i data-lucide="rotate-ccw"></i> Restablecer Valores por Defecto
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Right Panel: Live PDF Viewport -->
+    <section class="preview-panel">
+      
+      <!-- Toolbar -->
+      <div class="preview-toolbar">
+        <div class="preview-title">
+          <i data-lucide="eye" style="color: var(--accent-secondary);"></i> Previsualización en Vivo
+        </div>
+
+        <div class="preview-controls">
+          <button id="btnZoomOut" class="btn btn-secondary btn-sm" title="Alejar">
+            <i data-lucide="zoom-out"></i>
+          </button>
+          <span id="zoomLevel" style="font-size: 0.8rem; font-weight: 600; min-width: 45px; text-align: center;">100%</span>
+          <button id="btnZoomIn" class="btn btn-secondary btn-sm" title="Acercar">
+            <i data-lucide="zoom-in"></i>
+          </button>
+          <button id="btnZoomFit" class="btn btn-secondary btn-sm" title="Ajustar">
+            <i data-lucide="maximize-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Viewport with Canvas -->
+      <div class="pdf-viewport">
+        
+        <div class="pdf-loading-overlay" id="loadingOverlay">
+          <div class="spinner"></div>
+          <p style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">Cargando plantilla vectorial de Andreani...</p>
+        </div>
+
+        <div class="pdf-canvas-wrapper" id="canvasWrapper">
+          <canvas id="pdfCanvas"></canvas>
+        </div>
+
+      </div>
+
+      <!-- Floating Download Button -->
+      <div class="floating-download-bar">
+        <button id="btnDownloadFloating" class="btn btn-primary btn-lg" style="padding: 14px 28px; font-size: 1rem; border-radius: 30px;">
+          <i data-lucide="download"></i> Descargar Carta Documento (PDF)
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Application Logic -->
+  <script type="module" src="./app.js"></script>
+
+</body>
+</html>
