@@ -81,6 +81,17 @@ export function PdfPreview(toast) {
       _fitZoomToViewport();
       _rerenderCanvas();
     });
+
+    document.getElementById('btnFullscreen')?.addEventListener('click', () => {
+      const panel = document.querySelector('.preview-panel');
+      if (panel) {
+        panel.classList.toggle('fullscreen');
+        setTimeout(() => {
+          _fitZoomToViewport();
+          _rerenderCanvas();
+        }, 150);
+      }
+    });
   }
 
   /**
