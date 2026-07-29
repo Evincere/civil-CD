@@ -3,6 +3,10 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   // Ensure pdf.worker is copied as a static asset and accessible at runtime
   assetsInclude: ['**/*.pdf'],
+  server: {
+    host: '0.0.0.0',
+    port: 5174,
+  },
   build: {
     outDir: 'dist',
     chunkSizeWarningLimit: 1600,

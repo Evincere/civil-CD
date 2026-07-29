@@ -406,8 +406,11 @@ textarea { resize: vertical; min-height: 160px; line-height: 1.5; }
 .pdf-viewport {
   flex: 1; background: #111827;
   overflow: auto;
-  display: flex; align-items: center; justify-content: center;
-  padding: 24px; position: relative;
+  display: flex;
+  align-items: flex-start;   /* canvas empieza desde arriba, no centrado */
+  justify-content: center;
+  padding: 24px;
+  position: relative;
 }
 .pdf-canvas-wrapper {
   position: relative;

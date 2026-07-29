@@ -30,6 +30,8 @@ export function PdfPreview(toast) {
 
   // ── API pública ─────────────────────────────────────────────────────────────
 
+  let _isFirstRender = true;
+
   async function generateAndRender() {
     _setLoading(true);
     try {
@@ -37,6 +39,16 @@ export function PdfPreview(toast) {
       const pdfBytes = await generatePdf(state);
       store.setState({ pdfBytes });
       await renderPdfToCanvas(pdfBytes, canvas, state.zoom);
+
+      // En el primer render, calcular automáticamente el zoom que
+      // hace entrar la página completa en el panel visible.
+      if (_isFirstRender) {
+        _isFirstRender = false;
+        _fitZoomToViewport();
+        // Re-renderizar con el nuevo zoom calculado
+        const newState = store.getState();
+        await renderPdfToCanvas(pdfBytes, canvas, newState.zoom);
+      }
     } catch (err) {
       console.error('[PdfPreview] Error generando PDF:', err);
       toast.warning('Error al procesar el PDF');
@@ -66,10 +78,37 @@ export function PdfPreview(toast) {
     document.getElementById('btnZoomIn')?.addEventListener('click', () => _adjustZoom(ZOOM_STEP));
     document.getElementById('btnZoomOut')?.addEventListener('click', () => _adjustZoom(-ZOOM_STEP));
     document.getElementById('btnZoomFit')?.addEventListener('click', () => {
-      store.setState({ zoom: 1.0 });
-      _updateZoomDisplay();
+      _fitZoomToViewport();
       _rerenderCanvas();
     });
+  }
+
+  /**
+   * Calcula el zoom para que la página entera del PDF quepa en el panel
+   * visible sin necesidad de hacer scroll, y actualiza el store + display.
+   */
+  function _fitZoomToViewport() {
+    const viewport = document.querySelector('.pdf-viewport');
+    if (!viewport || !canvas.width || !canvas.height) return;
+
+    const availableW = viewport.clientWidth  - 48; // 24px padding cada lado
+    const availableH = viewport.clientHeight - 48;
+
+    // El canvas ya está renderizado al zoom actual (1.5 × zoom).
+    // Necesitamos calcular qué zoom produce dimensiones que entren en el panel.
+    const { zoom: currentZoom } = store.getState();
+    const pageW = canvas.width  / (currentZoom * 1.5);
+    const pageH = canvas.height / (currentZoom * 1.5);
+
+    const fitZoom = Math.min(
+      availableW / (pageW * 1.5),
+      availableH / (pageH * 1.5),
+      ZOOM_MAX
+    );
+
+    const clampedZoom = Math.max(ZOOM_MIN, Number(fitZoom.toFixed(2)));
+    store.setState({ zoom: clampedZoom });
+    _updateZoomDisplay();
   }
 
   function _adjustZoom(delta) {
