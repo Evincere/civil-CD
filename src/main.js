@@ -44,6 +44,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 6. Botones globales del header
   _bindGlobalActions(toast, formContenido, preview);
+
+  // 7. Botón de DEBUG para calibración de coordenadas (solo DEV)
+  if (import.meta.env.DEV) {
+    document.getElementById('btnDebugCoords')?.addEventListener('click', async () => {
+      const { generateDebugPdf } = await import('./assets/pdfDebug.js');
+      toast.info('Generando PDF de debug...');
+      await generateDebugPdf();
+      toast.success('PDF de coordenadas descargado');
+    });
+  } else {
+    document.getElementById('btnDebugCoords')?.remove();
+  }
 });
 
 // ── Helpers de bootstrapping ──────────────────────────────────────────────────

@@ -28,20 +28,23 @@ export async function generatePdf(state) {
 
   const textColor = rgb(0.08, 0.08, 0.12);
 
-  // ── Bloque 1: Remitente Superior ──────────────────────────────────────
-  // Offset corregido: el campo "nombre" del template está en height-62.
-  // Con height-90 el texto caía en la fila "Domicilio" del formulario.
-  _drawParty(firstPage, remitente,    70 + offX, height - 62 + offY, fsHead, font, fontBold, textColor);
+  // ── COORDENADAS (template 612×936 pt, imagen JPEG 1275×1950 px) ──────────────
+  //   Sección 1 (bloque superior): campo Nombre ≈ height - 80
+  //   Sección 2 (bloque remitente, mitad de página): campo Nombre ≈ height - 313
+  //   Cada fila: -28 pt (Nombre → Domicilio), -27 pt (Domicilio → CPA)
+  // ─────────────────────────────────────────────────────────────────────
 
-  // ── Bloque 2: Destinatario Superior ──────────────────────────────────
-  _drawParty(firstPage, destinatario, 335 + offX, height - 62 + offY, fsHead, font, fontBold, textColor);
+  // Bloque 1: Remitente Superior
+  _drawParty(firstPage, remitente,    70 + offX, height - 80 + offY, fsHead, font, fontBold, textColor);
 
-  // ── Bloque 3: Remitente Medio ─────────────────────────────────────────
-  // La sección 2 (coupon del remitente) está posicionada correctamente en height-322.
-  _drawParty(firstPage, remitente,    70 + offX, height - 322 + offY, fsHead, font, fontBold, textColor);
+  // Bloque 2: Destinatario Superior
+  _drawParty(firstPage, destinatario, 335 + offX, height - 80 + offY, fsHead, font, fontBold, textColor);
 
-  // ── Bloque 4: Destinatario Medio ──────────────────────────────────────
-  _drawParty(firstPage, destinatario, 335 + offX, height - 322 + offY, fsHead, font, fontBold, textColor);
+  // Bloque 3: Remitente Medio
+  _drawParty(firstPage, remitente,    70 + offX, height - 313 + offY, fsHead, font, fontBold, textColor);
+
+  // Bloque 4: Destinatario Medio
+  _drawParty(firstPage, destinatario, 335 + offX, height - 313 + offY, fsHead, font, fontBold, textColor);
 
   // ── Bloque 5: Cuerpo de la Carta ──────────────────────────────────────────
   let bodyY = height - 425 + offY;
