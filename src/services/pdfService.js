@@ -35,17 +35,17 @@ export async function generatePdf(state) {
   //   Gaps: Nombre→Domicilio = -28pt | Domicilio→CPA = -26pt
   // ─────────────────────────────────────────────────────────────────────
 
-  // Sección 1 — Remitente (izquierda)
-  _drawParty(firstPage, remitente,    70 + offX, height - 81 + offY, fsHead, font, fontBold, textColor);
+  // Sección 1 — Remitente (izquierda, inicio de casillas a X=42)
+  _drawParty(firstPage, remitente,    42 + offX, height - 81 + offY, fsHead, font, fontBold, textColor);
 
-  // Sección 1 — Destinatario (derecha)
-  _drawParty(firstPage, destinatario, 335 + offX, height - 81 + offY, fsHead, font, fontBold, textColor);
+  // Sección 1 — Destinatario (derecha, inicio de casillas a X=325)
+  _drawParty(firstPage, destinatario, 325 + offX, height - 81 + offY, fsHead, font, fontBold, textColor);
 
   // Sección 2 — Remitente (izquierda)
-  _drawParty(firstPage, remitente,    70 + offX, height - 296 + offY, fsHead, font, fontBold, textColor);
+  _drawParty(firstPage, remitente,    42 + offX, height - 296 + offY, fsHead, font, fontBold, textColor);
 
   // Sección 2 — Destinatario (derecha)
-  _drawParty(firstPage, destinatario, 335 + offX, height - 296 + offY, fsHead, font, fontBold, textColor);
+  _drawParty(firstPage, destinatario, 325 + offX, height - 296 + offY, fsHead, font, fontBold, textColor);
 
   // ── Bloque 5: Cuerpo de la Carta ──────────────────────────────────────────
   let bodyY = height - 425 + offY;
