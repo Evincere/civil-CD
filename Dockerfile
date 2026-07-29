@@ -1,5 +1,5 @@
 # ── Stage 1: Build con Vite ──────────────────────────────────────────
-FROM node:22-alpine AS builder
+FROM public.ecr.aws/docker/library/node:22-alpine AS builder
 WORKDIR /app
 
 # Copiar manifiestos primero (aprovecha layer cache de Docker)
