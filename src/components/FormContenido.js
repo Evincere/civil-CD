@@ -10,7 +10,7 @@ import { generarNroEnvio } from '../services/exportService.js';
 import { eventBus } from '../core/eventBus.js';
 import { DEFAULT_PRESETS } from '../config/presets.js';
 
-export function FormContenido(toast) {
+export function FormContenido(toast, confirmDialog) {
   // Cargar presets desde storage (con fallback a los predeterminados)
   let presets = storageService.loadPresets() ?? structuredClone(DEFAULT_PRESETS);
 
@@ -44,10 +44,10 @@ export function FormContenido(toast) {
         btn.innerHTML += `<span class="preset-pill-delete" data-delete="${preset.id}" title="Eliminar plantilla">&times;</span>`;
       }
 
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', async (e) => {
         if (e.target.closest('.preset-pill-delete')) {
           e.stopPropagation();
-          _deletePreset(preset.id);
+          await _deletePreset(preset.id);
           return;
         }
         _loadPreset(preset);
@@ -128,11 +128,12 @@ export function FormContenido(toast) {
     toast.info(`Plantilla "${preset.label}" cargada`);
   }
 
-  function _deletePreset(id) {
+  async function _deletePreset(id) {
     const preset = presets.find(p => p.id === id);
     if (!preset) return;
 
-    if (confirm(`¿Desea eliminar la plantilla personalizada "${preset.label}"?`)) {
+    const confirmed = await confirmDialog.show(`¿Desea eliminar la plantilla personalizada "${preset.label}"?`);
+    if (confirmed) {
       presets = presets.filter(p => p.id !== id);
       const { activePresetId } = store.getState();
       if (activePresetId === id) {
@@ -192,8 +193,9 @@ export function FormContenido(toast) {
   }
 
   function _bindResetPresets() {
-    document.getElementById('btnResetPresets')?.addEventListener('click', () => {
-      if (!confirm('¿Desea borrar todas las plantillas guardadas?')) return;
+    document.getElementById('btnResetPresets')?.addEventListener('click', async () => {
+      const confirmed = await confirmDialog.show('¿Desea borrar todas las plantillas guardadas?');
+      if (!confirmed) return;
 
       presets = structuredClone(DEFAULT_PRESETS);
       const firstPreset = presets[0];

@@ -15,6 +15,7 @@ import { ToastManager }    from './components/ToastManager.js';
 import { FormPartes }      from './components/FormPartes.js';
 import { FormContenido }   from './components/FormContenido.js';
 import { FormCalibracion } from './components/FormCalibracion.js';
+import { ConfirmDialog }     from './components/ConfirmDialog.js';
 import { PdfPreview }      from './components/PdfPreview.js';
 import { eventBus }        from './core/eventBus.js';
 
@@ -35,15 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. Cargar preset activo al texto del cuerpo (si el texto está vacío)
   _initPresetText();
 
+  const confirmDialog = ConfirmDialog();
+
   // 5. Componer la UI
   TabNavigator();
   FormPartes();
-  const formContenido = FormContenido(toast);
+  const formContenido = FormContenido(toast, confirmDialog);
   FormCalibracion(toast);
   const preview = PdfPreview(toast);
 
   // 6. Botones globales del header
-  _bindGlobalActions(toast, formContenido, preview);
+  _bindGlobalActions(toast, confirmDialog, formContenido, preview);
 
   // 7. Botón de DEBUG para calibración de coordenadas (solo DEV)
   if (import.meta.env.DEV) {
@@ -84,10 +87,11 @@ function _initPresetText() {
   }
 }
 
-function _bindGlobalActions(toast, formContenido, preview) {
+function _bindGlobalActions(toast, confirmDialog, formContenido, preview) {
   // Limpiar formulario
-  document.getElementById('btnReset')?.addEventListener('click', () => {
-    if (!confirm('¿Desea restablecer todos los campos del formulario?')) return;
+  document.getElementById('btnReset')?.addEventListener('click', async () => {
+    const confirmed = await confirmDialog.show('¿Desea restablecer todos los campos del formulario?');
+    if (!confirmed) return;
 
     store.setState({
       remitente:   { nombre: '', domicilio: '', cpa: '', localidad: '', provincia: '' },
