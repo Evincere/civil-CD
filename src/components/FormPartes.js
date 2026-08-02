@@ -64,10 +64,26 @@ export function FormPartes() {
       const cpaValue = cpaEl.value;
 
       debounceTimer = setTimeout(async () => {
-        if (cpaValue.length < 4) return;
-
         const locEl = document.getElementById(deps.localidad);
         const provEl = document.getElementById(deps.provincia);
+
+        if (cpaValue.length === 0) {
+          // Si borra el CPA, limpiamos la localidad y provincia vinculadas
+          if (locEl) {
+            locEl.value = '';
+            const [cat, k] = INPUTS_MAP[deps.localidad];
+            store.setState({ [cat]: { [k]: '' } });
+          }
+          if (provEl) {
+            provEl.value = '';
+            const [cat, k] = INPUTS_MAP[deps.provincia];
+            store.setState({ [cat]: { [k]: '' } });
+          }
+          eventBus.emit('pdf:schedule-render');
+          return;
+        }
+
+        if (cpaValue.length < 4) return;
 
         // Mostrar indicador de carga
         if (locEl) { locEl.placeholder = 'Buscando...'; locEl.disabled = true; }
@@ -79,12 +95,12 @@ export function FormPartes() {
         if (provEl) { provEl.disabled = false; provEl.placeholder = 'Provincia'; }
 
         if (result) {
-          if (locEl && !locEl.value) {
+          if (locEl) {
             locEl.value = result.localidad;
             const [cat, k] = INPUTS_MAP[deps.localidad];
             store.setState({ [cat]: { [k]: result.localidad } });
           }
-          if (provEl && !provEl.value) {
+          if (provEl) {
             provEl.value = result.provincia;
             const [cat, k] = INPUTS_MAP[deps.provincia];
             store.setState({ [cat]: { [k]: result.provincia } });
