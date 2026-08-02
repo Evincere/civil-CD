@@ -105,9 +105,9 @@ body {
 }
 .badge-official .dot {
   width: 6px; height: 6px;
-  background: var(--accent-andreani);
+  background: var(--accent-success);
   border-radius: 50%;
-  box-shadow: 0 0 8px var(--accent-andreani);
+  box-shadow: 0 0 8px var(--accent-success);
 }
 
 .header-actions { display: flex; align-items: center; gap: 12px; }

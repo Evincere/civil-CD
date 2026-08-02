@@ -139,22 +139,6 @@
         <!-- Tab 2: Contenido de la Carta -->
         <div id="tab-contenido" class="tab-pane">
           
-          <!-- Número de Envío -->
-          <div class="form-card">
-            <div class="form-card-title envio">
-              <i data-lucide="hash"></i> Número de Envío / Referencia
-            </div>
-            <div class="form-group full">
-              <label for="nroEnvio">N° de Carta Documento</label>
-              <div class="input-with-action">
-                <input type="text" id="nroEnvio" placeholder="Ej: CD-20260728-4921">
-                <button id="btnGenerarNroEnvio" class="btn btn-secondary btn-sm" title="Generar número automáticamente">
-                  <i data-lucide="sparkles"></i> Generar
-                </button>
-              </div>
-            </div>
-          </div>
-
           <div class="form-card">
             <div class="form-card-title cuerpo">
               <i data-lucide="align-left"></i> Redacción del Texto
@@ -162,15 +146,13 @@
 
             <div class="form-group full">
               <div class="preset-header">
-                <label>Plantillas Frecuentes
-                  <span class="label-hint">Seleccionar o crear texto modelo</span>
-                </label>
+                <label>Mis Plantillas &nbsp; <span class="label-hint">Seleccionar o crear texto modelo</span></label>
                 <div class="preset-header-actions">
                   <button id="btnOpenSaveTemplate" class="btn btn-secondary btn-sm" title="Guardar el texto redactado como una nueva plantilla reutilizable">
                     <i data-lucide="plus-circle"></i> Guardar Plantilla
                   </button>
-                  <button id="btnResetPresets" class="btn btn-secondary btn-sm" title="Restablecer plantillas predeterminadas">
-                    <i data-lucide="rotate-ccw"></i> Restablecer
+                  <button id="btnResetPresets" class="btn btn-secondary btn-sm" title="Borrar todas las plantillas guardadas">
+                    <i data-lucide="trash-2"></i> Borrar Todas
                   </button>
                 </div>
               </div>

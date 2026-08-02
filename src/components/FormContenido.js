@@ -193,20 +193,26 @@ export function FormContenido(toast) {
 
   function _bindResetPresets() {
     document.getElementById('btnResetPresets')?.addEventListener('click', () => {
-      if (!confirm('¿Desea restablecer las plantillas predeterminadas de fábrica?')) return;
+      if (!confirm('¿Desea borrar todas las plantillas guardadas?')) return;
 
       presets = structuredClone(DEFAULT_PRESETS);
       const firstPreset = presets[0];
-      store.setState({ activePresetId: firstPreset.id, cuerpo: { texto: firstPreset.texto } });
-
-      const textarea = document.getElementById('cuerpoTexto');
-      if (textarea) textarea.value = firstPreset.texto;
+      
+      if (firstPreset) {
+        store.setState({ activePresetId: firstPreset.id, cuerpo: { texto: firstPreset.texto } });
+        const textarea = document.getElementById('cuerpoTexto');
+        if (textarea) textarea.value = firstPreset.texto;
+      } else {
+        store.setState({ activePresetId: null, cuerpo: { texto: '' } });
+        const textarea = document.getElementById('cuerpoTexto');
+        if (textarea) textarea.value = '';
+      }
 
       storageService.savePresets(presets);
       _updateCharCounter();
       renderPresetPills();
       eventBus.emit('pdf:schedule-render');
-      toast.info('Plantillas restablecidas por defecto');
+      toast.info('Plantillas borradas exitosamente');
     });
   }
 
