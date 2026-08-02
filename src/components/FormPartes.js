@@ -7,7 +7,7 @@
 
 import { store } from '../core/state.js';
 import { validateField } from '../core/validator.js';
-import { resolverCPA } from '../services/cpaService.js';
+import { resolverCPA, resolverLocalidadInversa } from '../services/cpaService.js';
 import { eventBus } from '../core/eventBus.js';
 
 // Mapa de campos del formulario → path en el estado
@@ -109,6 +109,43 @@ export function FormPartes() {
         }
       }, 700);
     });
+  });
+
+  // Auto-completado inverso (Localidad + Provincia -> CPA)
+  Object.entries(CPA_DEPENDENTS).forEach(([cpaFieldId, deps]) => {
+    const locEl = document.getElementById(deps.localidad);
+    const provEl = document.getElementById(deps.provincia);
+    const cpaEl = document.getElementById(cpaFieldId);
+
+    if (!locEl || !provEl || !cpaEl) return;
+
+    let reverseTimer = null;
+
+    const triggerReverseLookup = () => {
+      clearTimeout(reverseTimer);
+      reverseTimer = setTimeout(async () => {
+        const loc = locEl.value;
+        const prov = provEl.value;
+        
+        // Solo autocompletar si el CPA está vacío y tenemos ambos datos
+        if (loc.length >= 3 && prov.length >= 3 && !cpaEl.value) {
+          const originalPlaceholder = cpaEl.placeholder;
+          cpaEl.placeholder = 'Buscando...';
+          const cpaResult = await resolverLocalidadInversa(loc, prov);
+          cpaEl.placeholder = originalPlaceholder;
+          
+          if (cpaResult && !cpaEl.value) {
+            cpaEl.value = cpaResult;
+            const [cat, k] = INPUTS_MAP[cpaFieldId];
+            store.setState({ [cat]: { [k]: cpaResult } });
+            eventBus.emit('pdf:schedule-render');
+          }
+        }
+      }, 1000); // Darle un poco más de tiempo para que termine de tipear
+    };
+
+    locEl.addEventListener('input', triggerReverseLookup);
+    provEl.addEventListener('input', triggerReverseLookup);
   });
 
   /**
