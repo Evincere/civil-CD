@@ -11,7 +11,7 @@ import { eventBus } from '../core/eventBus.js';
 import { DEFAULT_PRESETS } from '../config/presets.js';
 import { fetchTemplateTree } from '../services/templateService.js';
 
-export function FormContenido(toast, confirmDialog) {
+export function FormContenido(toast, confirmDialog, suggestionBanner) {
   // Cargar presets desde storage (con fallback a los predeterminados)
   let presets = storageService.loadPresets() ?? structuredClone(DEFAULT_PRESETS);
 
@@ -22,6 +22,7 @@ export function FormContenido(toast, confirmDialog) {
   _bindNroEnvio();
   _bindInputs();
   _bindSaveTemplateUI();
+  _bindAnalyzeAIUI(suggestionBanner);
   _bindResetPresets();
 
   eventBus.on('templates:reload', async () => {
@@ -208,6 +209,37 @@ export function FormContenido(toast, confirmDialog) {
 
       renderPresetPills();
       toast.success(`¡Plantilla "${title}" guardada exitosamente!`);
+    });
+  }
+
+  function _bindAnalyzeAIUI(suggestionBanner) {
+    const btnAnalyze = document.getElementById('btnAnalyzeAI');
+    btnAnalyze?.addEventListener('click', async () => {
+      const { cuerpo, activePresetId } = store.getState();
+      const texto = cuerpo?.texto || '';
+
+      if (!texto.trim() || texto.trim().length < 30) {
+        toast.warning('Escriba un texto suficiente antes de solicitar el análisis por IA');
+        return;
+      }
+
+      const originalHtml = btnAnalyze.innerHTML;
+      btnAnalyze.disabled = true;
+      btnAnalyze.innerHTML = '<span>Analizando...</span>';
+
+      toast.info('Analizando redacción jurídica con IA...');
+      const suggestion = await evaluateTextForLearning(texto, activePresetId);
+
+      btnAnalyze.disabled = false;
+      btnAnalyze.innerHTML = originalHtml;
+
+      if (suggestion && suggestionBanner) {
+        suggestionBanner.show(suggestion, () => {
+          eventBus.emit('templates:reload');
+        });
+      } else {
+        toast.info('No se detectaron nuevas cláusulas o el texto ya coincide con la plantilla.');
+      }
     });
   }
 

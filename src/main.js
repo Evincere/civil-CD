@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 5. Componer la UI
   TabNavigator();
   FormPartes();
-  const formContenido = FormContenido(toast, confirmDialog);
+  const formContenido = FormContenido(toast, confirmDialog, suggestionBanner);
   FormCalibracion(toast);
   const preview = PdfPreview(toast, suggestionBanner);
 

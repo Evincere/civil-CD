@@ -93,18 +93,17 @@ Responde ÚNICAMENTE con un JSON válido con este formato:
  * Fallback heurístico en caso de que freellmapi no esté respondiendo en desarrollo
  */
 function _fallbackHeuristicEvaluation(userText, baseTemplate) {
-  // Si el texto es significativamente diferente o más largo que la plantilla base
-  if (baseTemplate) {
-    const diffRatio = Math.abs(userText.length - baseTemplate.body_template.length) / baseTemplate.body_template.length;
-    if (diffRatio > 0.3) {
-      return {
-        hasImprovement: true,
-        proposedTitle: `${baseTemplate.title} (Versión Refinada)`,
-        proposedBody: _anonymizeTextHeuristic(userText),
-        variables: ['NOMBRE_DESTINATARIO', 'MONTO_RECLAMADO', 'FECHA_HECHO'],
-        rationale: 'Se detectó una amplificación relevante en las cláusulas redactadas.'
-      };
-    }
+  if (userText && userText.trim().length > 40) {
+    const isNew = !baseTemplate;
+    return {
+      hasImprovement: true,
+      proposedTitle: isNew ? 'Intimación Legal Sugerida' : `${baseTemplate.title} (Versión Refinada)`,
+      proposedBody: _anonymizeTextHeuristic(userText),
+      variables: ['NOMBRE_DESTINATARIO', 'MONTO_DEUDA', 'FECHA_HECHO'],
+      rationale: isNew 
+        ? 'Se detectó una nueva materia legal recurrente. Se propone anonimizar y guardar como plantilla.'
+        : 'Se identificó una amplificación relevante en las cláusulas redactadas y fundamentación jurídica.'
+    };
   }
   return { hasImprovement: false };
 }
