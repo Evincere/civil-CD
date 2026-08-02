@@ -9,7 +9,7 @@ import { storageService } from '../services/storageService.js';
 import { generarNroEnvio } from '../services/exportService.js';
 import { eventBus } from '../core/eventBus.js';
 import { DEFAULT_PRESETS } from '../config/presets.js';
-import { fetchTemplateTree } from '../services/templateService.js';
+import { fetchTemplateTree, evaluateTextForLearning } from '../services/templateService.js';
 
 export function FormContenido(toast, confirmDialog, suggestionBanner) {
   // Cargar presets desde storage (con fallback a los predeterminados)
