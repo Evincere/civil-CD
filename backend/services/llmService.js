@@ -93,19 +93,81 @@ Responde ÚNICAMENTE con un JSON válido con este formato:
  * Fallback heurístico en caso de que freellmapi no esté respondiendo en desarrollo
  */
 function _fallbackHeuristicEvaluation(userText, baseTemplate) {
-  if (userText && userText.trim().length > 40) {
-    const isNew = !baseTemplate;
-    return {
-      hasImprovement: true,
-      proposedTitle: isNew ? 'Intimación Legal Sugerida' : `${baseTemplate.title} (Versión Refinada)`,
-      proposedBody: _anonymizeTextHeuristic(userText),
-      variables: ['NOMBRE_DESTINATARIO', 'MONTO_DEUDA', 'FECHA_HECHO'],
-      rationale: isNew 
-        ? 'Se detectó una nueva materia legal recurrente. Se propone anonimizar y guardar como plantilla.'
-        : 'Se identificó una amplificación relevante en las cláusulas redactadas y fundamentación jurídica.'
-    };
+  if (!userText || userText.trim().length < 40) {
+    return { hasImprovement: false };
   }
-  return { hasImprovement: false };
+
+  const cleanUserText = userText.trim();
+
+  // Si hay una plantilla base y el texto es esencialmente idéntico, no generar refinamiento duplicado
+  if (baseTemplate) {
+    const cleanBaseText = (baseTemplate.body_template || '').trim();
+    if (cleanUserText === cleanBaseText || _calculateSimilarity(cleanUserText, cleanBaseText) > 0.92) {
+      return { hasImprovement: false };
+    }
+  }
+
+  const isNew = !baseTemplate;
+  const detectedTitle = _detectLegalTitle(userText);
+  const baseTitleClean = baseTemplate ? baseTemplate.title.replace(/\s*\((Versión Refinada|Mejorada)\).*/gi, '').trim() : '';
+
+  return {
+    hasImprovement: true,
+    proposedTitle: isNew ? detectedTitle : baseTitleClean,
+    proposedBody: _anonymizeTextHeuristic(userText),
+    variables: ['NOMBRE_DESTINATARIO', 'MONTO_DEUDA', 'FECHA_HECHO'],
+    rationale: isNew 
+      ? 'Se detectó una nueva materia legal recurrente. Se propone anonimizar y guardar como plantilla oficial.'
+      : 'Se identificó una amplificación relevante en las cláusulas redactadas y fundamentación jurídica.'
+  };
+}
+
+function _detectLegalTitle(text) {
+  const t = text.toLowerCase();
+  if (t.includes('defensa del consumidor') || t.includes('24.240') || t.includes('telecom') || t.includes('servicio no solicitado')) {
+    return 'Reclamo por Defensa del Consumidor (Ley 24.240)';
+  }
+  if (t.includes('alimentos') || t.includes('cuota') || t.includes('13.944') || t.includes('552')) {
+    return 'Intimación por Pago de Cuota Alimentaria';
+  }
+  if (t.includes('desalojo') || t.includes('locación') || t.includes('alquiler') || t.includes('inmueble')) {
+    return 'Intimación de Desocupación por Vencimiento de Contrato';
+  }
+  if (t.includes('laboral') || t.includes('trabajo') || t.includes('empleador') || t.includes('registración')) {
+    return 'Intimación Laboral por Registración';
+  }
+  return 'Intimación Legal General';
+}
+
+function _calculateSimilarity(s1, s2) {
+  const longer = s1.length > s2.length ? s1 : s2;
+  const shorter = s1.length > s2.length ? s2 : s1;
+  if (longer.length === 0) return 1.0;
+  return (longer.length - _editDistance(longer, shorter)) / parseFloat(longer.length);
+}
+
+function _editDistance(s1, s2) {
+  s1 = s1.toLowerCase();
+  s2 = s2.toLowerCase();
+  const costs = [];
+  for (let i = 0; i <= s1.length; i++) {
+    let lastValue = i;
+    for (let j = 0; j <= s2.length; j++) {
+      if (i === 0) costs[j] = j;
+      else {
+        if (j > 0) {
+          let newValue = costs[j - 1];
+          if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+            newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+          }
+          costs[j - 1] = lastValue;
+          lastValue = newValue;
+        }
+      }
+    }
+    if (i > 0) costs[s2.length] = lastValue;
+  }
+  return costs[s2.length];
 }
 
 function _anonymizeTextHeuristic(text) {

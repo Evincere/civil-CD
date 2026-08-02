@@ -85,10 +85,14 @@ export function acceptSuggestion(req, res) {
     let updatedTemplate;
     if (suggestion.template_id) {
       const base = db.getTemplateById(suggestion.template_id);
+      const cleanTitle = (suggestion.proposed_title || base?.title || 'Plantilla Legal')
+        .replace(/\s*\((Versión Refinada|Mejorada)\).*/gi, '')
+        .trim();
+
       updatedTemplate = db.addOrUpdateTemplate({
         id: suggestion.template_id,
         category_id: suggestion.category_id || base?.category_id || 'cat-familia-alimentos',
-        title: suggestion.proposed_title,
+        title: cleanTitle,
         body_template: suggestion.proposed_body,
         variables: suggestion.variables,
         version: (base?.version || 1) + 1,
@@ -96,10 +100,14 @@ export function acceptSuggestion(req, res) {
       });
     } else {
       // Crear nueva plantilla maestra
+      const cleanTitle = (suggestion.proposed_title || 'Nueva Plantilla Legal')
+        .replace(/\s*\((Versión Refinada|Mejorada)\).*/gi, '')
+        .trim();
+
       updatedTemplate = db.addOrUpdateTemplate({
         id: `tpl-${Date.now()}`,
         category_id: suggestion.category_id || 'cat-familia-alimentos',
-        title: suggestion.proposed_title,
+        title: cleanTitle,
         body_template: suggestion.proposed_body,
         variables: suggestion.variables,
         version: 1,
