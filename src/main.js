@@ -16,7 +16,8 @@ import { FormPartes }      from './components/FormPartes.js';
 import { FormContenido }   from './components/FormContenido.js';
 import { FormCalibracion } from './components/FormCalibracion.js';
 import { ConfirmDialog }     from './components/ConfirmDialog.js';
-import { PdfPreview }      from './components/PdfPreview.js';
+import { SuggestionBanner }  from './components/SuggestionBanner.js';
+import { PdfPreview }        from './components/PdfPreview.js';
 import { eventBus }        from './core/eventBus.js';
 
 // ── Estilos ───────────────────────────────────────────────────────────────────
@@ -37,13 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
   _initPresetText();
 
   const confirmDialog = ConfirmDialog();
+  const suggestionBanner = SuggestionBanner(toast);
 
   // 5. Componer la UI
   TabNavigator();
   FormPartes();
   const formContenido = FormContenido(toast, confirmDialog);
   FormCalibracion(toast);
-  const preview = PdfPreview(toast);
+  const preview = PdfPreview(toast, suggestionBanner);
 
   // 6. Botones globales del header
   _bindGlobalActions(toast, confirmDialog, formContenido, preview);

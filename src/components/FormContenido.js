@@ -9,6 +9,7 @@ import { storageService } from '../services/storageService.js';
 import { generarNroEnvio } from '../services/exportService.js';
 import { eventBus } from '../core/eventBus.js';
 import { DEFAULT_PRESETS } from '../config/presets.js';
+import { fetchTemplateTree } from '../services/templateService.js';
 
 export function FormContenido(toast, confirmDialog) {
   // Cargar presets desde storage (con fallback a los predeterminados)
@@ -16,12 +17,17 @@ export function FormContenido(toast, confirmDialog) {
 
   // Sincronizar estado inicial al DOM
   _syncFromStore();
-  renderPresetPills();
+  _loadBackendTemplates().then(renderPresetPills);
   _bindCharCounter();
   _bindNroEnvio();
   _bindInputs();
   _bindSaveTemplateUI();
   _bindResetPresets();
+
+  eventBus.on('templates:reload', async () => {
+    await _loadBackendTemplates();
+    renderPresetPills();
+  });
 
   function renderPresetPills() {
     const container = document.getElementById('presetContainer');
@@ -57,7 +63,20 @@ export function FormContenido(toast, confirmDialog) {
     });
   }
 
-  // ── Privados ────────────────────────────────────────────────────────────────
+  async function _loadBackendTemplates() {
+    const data = await fetchTemplateTree();
+    if (data && data.allTemplates) {
+      const backendPresets = data.allTemplates.map(t => ({
+        id: t.id,
+        label: t.title,
+        isCustom: false,
+        texto: t.body_template
+      }));
+      // Combinar plantillas del backend con las guardadas por el usuario localmente
+      const localCustoms = presets.filter(p => p.isCustom);
+      presets = [...backendPresets, ...localCustoms];
+    }
+  }
 
   function _syncFromStore() {
     const { cuerpo } = store.getState();

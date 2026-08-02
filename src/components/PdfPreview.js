@@ -8,6 +8,7 @@ import { store } from '../core/state.js';
 import { renderPdfToCanvas } from '../services/renderService.js';
 import { generatePdf } from '../services/pdfService.js';
 import { downloadPdf } from '../services/exportService.js';
+import { evaluateTextForLearning } from '../services/templateService.js';
 import { validateState } from '../core/validator.js';
 import { eventBus } from '../core/eventBus.js';
 
@@ -16,7 +17,7 @@ const ZOOM_MAX = 2.5;
 const ZOOM_STEP = 0.15;
 const RENDER_DEBOUNCE_MS = 350;
 
-export function PdfPreview(toast) {
+export function PdfPreview(toast, suggestionBanner) {
   const canvas = document.getElementById('pdfCanvas');
   const loadingOverlay = document.getElementById('loadingOverlay');
 
@@ -24,7 +25,7 @@ export function PdfPreview(toast) {
 
   // Inicialización
   _bindZoomControls();
-  _bindDownloadButtons(toast);
+  _bindDownloadButtons(toast, suggestionBanner);
   _bindScheduleRenderEvent();
   _scheduleRender(); // Render inicial
 
@@ -142,7 +143,7 @@ export function PdfPreview(toast) {
     await renderPdfToCanvas(pdfBytes, canvas, zoom);
   }
 
-  function _bindDownloadButtons(toast) {
+  function _bindDownloadButtons(toast, suggestionBanner) {
     const handler = async () => {
       const state = store.getState();
 
@@ -163,6 +164,17 @@ export function PdfPreview(toast) {
         }
         const fileName = downloadPdf(pdfBytes, state.destinatario.nombre);
         toast.success(`Descargado: ${fileName}`);
+
+        // Evaluación de aprendizaje por IA en segundo plano
+        if (state.cuerpo?.texto && suggestionBanner) {
+          evaluateTextForLearning(state.cuerpo.texto, state.activeTemplateId).then((suggestion) => {
+            if (suggestion) {
+              suggestionBanner.show(suggestion, () => {
+                eventBus.emit('templates:reload');
+              });
+            }
+          });
+        }
       } catch (err) {
         console.error('[PdfPreview] Error descargando PDF:', err);
         toast.warning('Error al descargar el PDF');
