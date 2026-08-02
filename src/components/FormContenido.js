@@ -102,7 +102,15 @@ export function FormContenido(toast, confirmDialog, suggestionBanner) {
       if (!el) return;
       el.addEventListener('input', (e) => {
         store.setState({ cuerpo: { [key]: e.target.value } });
-        if (id === 'cuerpoTexto') _updateCharCounter();
+        if (id === 'cuerpoTexto') {
+          _updateCharCounter();
+          // Resetear el preset activo si el usuario escribe su propio texto
+          const { activePresetId } = store.getState();
+          if (activePresetId) {
+            store.setState({ activePresetId: null });
+            renderPresetPills();
+          }
+        }
         eventBus.emit('pdf:schedule-render');
       });
     });

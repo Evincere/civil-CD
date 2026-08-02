@@ -49,8 +49,8 @@ export async function evaluateText(req, res) {
 
     // Crear sugerencia de mejora pendiente de aprobación
     const suggestion = db.addSuggestion({
-      template_id: activeTemplateId || null,
-      category_id: baseTemplate ? baseTemplate.category_id : 'cat-familia-alimentos',
+      template_id: evaluation.isNewTemplate ? null : (evaluation.templateId || activeTemplateId || null),
+      category_id: evaluation.categoryId || (baseTemplate ? baseTemplate.category_id : 'cat-familia-alimentos'),
       proposed_title: evaluation.proposedTitle,
       proposed_body: evaluation.proposedBody,
       variables: evaluation.variables,

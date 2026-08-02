@@ -98,26 +98,39 @@ function _fallbackHeuristicEvaluation(userText, baseTemplate) {
   }
 
   const cleanUserText = userText.trim();
+  const detectedTitle = _detectLegalTitle(userText);
+  const detectedCategoryId = _detectCategoryId(userText);
 
-  // Si hay una plantilla base y el texto es esencialmente idéntico, no generar refinamiento duplicado
+  let isNewTemplate = false;
+  let targetTemplateId = baseTemplate ? baseTemplate.id : null;
+
   if (baseTemplate) {
-    const cleanBaseText = (baseTemplate.body_template || '').trim();
-    if (cleanUserText === cleanBaseText || _calculateSimilarity(cleanUserText, cleanBaseText) > 0.92) {
-      return { hasImprovement: false };
+    // Si la plantilla base es de una categoría jurídica diferente a la detectada, tratar como NUEVA plantilla
+    if (baseTemplate.category_id && detectedCategoryId && baseTemplate.category_id !== detectedCategoryId) {
+      isNewTemplate = true;
+      targetTemplateId = null;
+    } else {
+      const cleanBaseText = (baseTemplate.body_template || '').trim();
+      if (cleanUserText === cleanBaseText || _calculateSimilarity(cleanUserText, cleanBaseText) > 0.92) {
+        return { hasImprovement: false };
+      }
     }
+  } else {
+    isNewTemplate = true;
   }
 
-  const isNew = !baseTemplate;
-  const detectedTitle = _detectLegalTitle(userText);
-  const baseTitleClean = baseTemplate ? baseTemplate.title.replace(/\s*\((Versión Refinada|Mejorada)\).*/gi, '').trim() : '';
+  const baseTitleClean = baseTemplate && !isNewTemplate ? baseTemplate.title.replace(/\s*\((Versión Refinada|Mejorada)\).*/gi, '').trim() : '';
 
   return {
     hasImprovement: true,
-    proposedTitle: isNew ? detectedTitle : baseTitleClean,
+    isNewTemplate,
+    templateId: targetTemplateId,
+    categoryId: detectedCategoryId,
+    proposedTitle: isNewTemplate ? detectedTitle : baseTitleClean,
     proposedBody: _anonymizeTextHeuristic(userText),
     variables: ['NOMBRE_DESTINATARIO', 'MONTO_DEUDA', 'FECHA_HECHO'],
-    rationale: isNew 
-      ? 'Se detectó una nueva materia legal recurrente. Se propone anonimizar y guardar como plantilla oficial.'
+    rationale: isNewTemplate 
+      ? `Se detectó una nueva plantilla en la categoría "${detectedTitle}". Se propone anonimizar y guardar como plantilla oficial.`
       : 'Se identificó una amplificación relevante en las cláusulas redactadas y fundamentación jurídica.'
   };
 }
@@ -137,6 +150,23 @@ function _detectLegalTitle(text) {
     return 'Intimación Laboral por Registración';
   }
   return 'Intimación Legal General';
+}
+
+function _detectCategoryId(text) {
+  const t = text.toLowerCase();
+  if (t.includes('defensa del consumidor') || t.includes('24.240') || t.includes('telecom') || t.includes('servicio no solicitado')) {
+    return 'cat-consumidor-servicios';
+  }
+  if (t.includes('alimentos') || t.includes('cuota') || t.includes('13.944') || t.includes('552')) {
+    return 'cat-familia-alimentos';
+  }
+  if (t.includes('desalojo') || t.includes('locación') || t.includes('alquiler') || t.includes('inmueble')) {
+    return 'cat-vivienda-desalojo';
+  }
+  if (t.includes('laboral') || t.includes('trabajo') || t.includes('empleador') || t.includes('registración')) {
+    return 'cat-laboral-registración';
+  }
+  return 'cat-familia-alimentos';
 }
 
 function _calculateSimilarity(s1, s2) {
