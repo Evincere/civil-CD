@@ -86,15 +86,15 @@ export async function generatePdf(state) {
 function _drawParty(page, party, x, startY, fontSize, font, fontBold, color) {
   let y = startY;
   // Nombre
-  page.drawText(party.nombre || '', { x, y, size: fontSize, font: fontBold, color });
+  page.drawText((party.nombre || '').toUpperCase(), { x, y, size: fontSize, font: fontBold, color });
   y -= 28; // Nombre → Domicilio: 28pt
   // Domicilio
-  page.drawText(party.domicilio || '', { x, y, size: fontSize, font, color });
+  page.drawText((party.domicilio || '').toUpperCase(), { x, y, size: fontSize, font, color });
   y -= 26; // Domicilio → CPA: 26pt
   // CPA | Localidad | Provincia
-  page.drawText(party.cpa      || '', { x,         y, size: fontSize, font: fontBold, color });
-  page.drawText(party.localidad|| '', { x: x + 70,  y, size: fontSize, font,         color });
-  page.drawText(party.provincia|| '', { x: x + 210, y, size: fontSize, font,         color });
+  page.drawText((party.cpa      || '').toUpperCase(), { x,         y, size: fontSize, font: fontBold, color });
+  page.drawText((party.localidad|| '').toUpperCase(), { x: x + 70,  y, size: fontSize, font,         color });
+  page.drawText((party.provincia|| '').toUpperCase(), { x: x + 210, y, size: fontSize, font,         color });
 }
 
 function _drawWrappedText(page, text, x, startY, maxWidth, fontSize, font, lineHeight, color) {
