@@ -80,13 +80,10 @@ body {
 .brand-container { display: flex; align-items: center; gap: 14px; }
 
 .brand-icon {
-  width: 42px; height: 42px;
-  background: linear-gradient(135deg, var(--accent-andreani), #be123c);
-  border-radius: var(--radius-md);
+  height: 42px;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: var(--shadow-glow);
 }
-.brand-icon svg { width: 24px; height: 24px; color: white; }
+.brand-icon img { height: 100%; width: auto; object-fit: contain; }
 
 .brand-text h1 {
   font-family: var(--font-heading);
