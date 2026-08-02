@@ -7,7 +7,7 @@
  * SRP: única responsabilidad = resolver datos geográficos por código postal.
  */
 
-const BASE_URL = 'https://apis.datos.gob.ar/georef/api';
+const BASE_URL = 'https://api.zippopotam.us/ar';
 const cache = new Map();
 
 /**
@@ -27,19 +27,19 @@ export async function resolverCPA(cpa) {
     const codigoNumerico = cleaned.replace(/\D/g, '');
     if (!codigoNumerico) return null;
 
-    const url = `${BASE_URL}/localidades?codigo_postal=${codigoNumerico}&campos=nombre,provincia.nombre&max=1`;
+    const url = `${BASE_URL}/${codigoNumerico}`;
     const response = await fetch(url, { signal: AbortSignal.timeout(4000) });
 
     if (!response.ok) return null;
 
     const data = await response.json();
-    const localidades = data?.localidades ?? [];
+    const places = data?.places ?? [];
 
-    if (localidades.length === 0) return null;
+    if (places.length === 0) return null;
 
     const result = {
-      localidad: toTitleCase(localidades[0].nombre),
-      provincia: toTitleCase(localidades[0].provincia?.nombre ?? '')
+      localidad: toTitleCase(places[0]['place name']),
+      provincia: toTitleCase(places[0]['state'])
     };
 
     cache.set(cleaned, result);
