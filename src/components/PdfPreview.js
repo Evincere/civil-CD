@@ -79,10 +79,6 @@ export function PdfPreview(toast, suggestionBanner) {
   function _bindZoomControls() {
     document.getElementById('btnZoomIn')?.addEventListener('click', () => _adjustZoom(ZOOM_STEP));
     document.getElementById('btnZoomOut')?.addEventListener('click', () => _adjustZoom(-ZOOM_STEP));
-    document.getElementById('btnZoomFit')?.addEventListener('click', () => {
-      _fitZoomToViewport();
-      _rerenderCanvas();
-    });
 
     document.getElementById('btnFullscreen')?.addEventListener('click', () => {
       const panel = document.querySelector('.preview-panel');

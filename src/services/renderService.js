@@ -33,6 +33,8 @@ export async function renderPdfToCanvas(pdfBytes, canvas, zoom = 1.0) {
 
   canvas.height = viewport.height;
   canvas.width = viewport.width;
+  canvas.style.width = `${Math.round(viewport.width)}px`;
+  canvas.style.height = `${Math.round(viewport.height)}px`;
 
   await page.render({
     canvasContext: canvas.getContext('2d'),
