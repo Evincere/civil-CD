@@ -92,7 +92,7 @@ export function PdfPreview(toast, suggestionBanner) {
         }
         setTimeout(() => {
           _fitZoomToViewport();
-          _rerenderCanvas();
+          generateAndRender();
         }, 150);
       }
     });
@@ -131,7 +131,7 @@ export function PdfPreview(toast, suggestionBanner) {
     const newZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom + delta));
     store.setState({ zoom: newZoom });
     _updateZoomDisplay();
-    _rerenderCanvas();
+    generateAndRender();
   }
 
   function _updateZoomDisplay() {
