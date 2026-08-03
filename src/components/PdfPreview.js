@@ -11,6 +11,7 @@ import { downloadPdf } from '../services/exportService.js';
 import { evaluateTextForLearning } from '../services/templateService.js';
 import { validateState } from '../core/validator.js';
 import { eventBus } from '../core/eventBus.js';
+import { createIcons, icons } from 'lucide';
 
 const ZOOM_MIN = 0.5;
 const ZOOM_MAX = 2.5;
@@ -85,8 +86,14 @@ export function PdfPreview(toast, suggestionBanner) {
 
     document.getElementById('btnFullscreen')?.addEventListener('click', () => {
       const panel = document.querySelector('.preview-panel');
+      const btn = document.getElementById('btnFullscreen');
       if (panel) {
-        panel.classList.toggle('fullscreen');
+        const isFullscreen = panel.classList.toggle('fullscreen');
+        if (btn) {
+          btn.title = isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa';
+          btn.innerHTML = `<i data-lucide="${isFullscreen ? 'minimize-2' : 'maximize-2'}"></i>`;
+          createIcons({ root: btn, icons });
+        }
         setTimeout(() => {
           _fitZoomToViewport();
           _rerenderCanvas();

@@ -10,6 +10,7 @@ import { generarNroEnvio } from '../services/exportService.js';
 import { eventBus } from '../core/eventBus.js';
 import { DEFAULT_PRESETS } from '../config/presets.js';
 import { fetchTemplateTree, evaluateTextForLearning } from '../services/templateService.js';
+import { formatFechaLugar } from '../core/dateUtils.js';
 
 export function FormContenido(toast, confirmDialog, suggestionBanner) {
   // Cargar presets desde storage (con fallback a los predeterminados)
@@ -28,6 +29,13 @@ export function FormContenido(toast, confirmDialog, suggestionBanner) {
   eventBus.on('templates:reload', async () => {
     await _loadBackendTemplates();
     renderPresetPills();
+  });
+
+  eventBus.on('remitente:localidad-changed', (localidad) => {
+    const newAutoFecha = formatFechaLugar(localidad);
+    _setField('fechaEmision', newAutoFecha);
+    store.setState({ cuerpo: { fecha: newAutoFecha } });
+    eventBus.emit('pdf:schedule-render');
   });
 
   function renderPresetPills() {
@@ -80,11 +88,18 @@ export function FormContenido(toast, confirmDialog, suggestionBanner) {
   }
 
   function _syncFromStore() {
-    const { cuerpo } = store.getState();
+    const { cuerpo, remitente } = store.getState();
     _setField('nroEnvio', cuerpo.nroEnvio);
     _setField('cuerpoTexto', cuerpo.texto);
-    _setField('fechaEmision', cuerpo.fecha);
     _setField('firmante', cuerpo.firmante);
+
+    const autoFecha = formatFechaLugar(remitente?.localidad || '');
+    const finalFecha = cuerpo.fecha || autoFecha;
+    _setField('fechaEmision', finalFecha);
+
+    if (!cuerpo.fecha) {
+      store.setState({ cuerpo: { fecha: finalFecha } });
+    }
   }
 
   function _setField(id, value) {

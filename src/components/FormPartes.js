@@ -44,6 +44,9 @@ export function FormPartes() {
       const value = e.target.value;
       store.setState({ [category]: { [key]: value } });
       _showFieldError(id, validateField(id, value));
+      if (id === 'remLocalidad') {
+        eventBus.emit('remitente:localidad-changed', value);
+      }
       eventBus.emit('pdf:schedule-render');
     });
 
@@ -99,6 +102,9 @@ export function FormPartes() {
             locEl.value = result.localidad;
             const [cat, k] = INPUTS_MAP[deps.localidad];
             store.setState({ [cat]: { [k]: result.localidad } });
+            if (deps.localidad === 'remLocalidad') {
+              eventBus.emit('remitente:localidad-changed', result.localidad);
+            }
           }
           if (provEl) {
             provEl.value = result.provincia;
